@@ -1,71 +1,55 @@
 import { AttributeChange, ConnectorError, StdAccountCreateInput, StdAccountCreateOutput, StdEntitlementListOutput } from "@sailpoint/connector-sdk"
 import { Group } from "../model/group"
 import { User } from "../model/user"
+import { Container } from "../model/container"
 
 export class Util {
   
 
     /**
-     * converts user object to IDN account output for BeyondInsight for Unix & Linux
+     * converts user object to IDN account output
      *
      * @param {User} user User object
      * @returns {StdAccountCreateOutput} IDN account create object
      */
     public userToAccount(user: User): StdAccountCreateOutput {
-
+        var jsonPath = require('JSONPath');
+        // Formatting output for IdentityNow
+                console.log('###### userToAccount user = '+JSON.stringify(user))
+                const uid = user.id ? user.id : ''
+                const email = user.emails[0].value ? user.emails[0].value : ''
+                const groups = user.roles ? user.roles : ''
+                const entitlements = user.entitlements ? user.entitlements : ''
+                let groups_idn = []
+                let ents_idn = []
+                console.log('##### user id = '+uid)
+                console.log('##### # of groups = '+ groups.length+'  groups ='+JSON.stringify(groups))
+                for (let index = 0; index < groups.length; ++index) {
+                    console.log('######## group = '+JSON.stringify(groups[index].value))
+                        groups_idn.push(groups[index].value)
+                }
+                console.log('##### # of entitlements = '+ entitlements.length+'  entitlements ='+JSON.stringify(entitlements))
+                for (let indexE = 0; indexE < entitlements.length; ++indexE) {
+                    console.log('######## entitlements = '+JSON.stringify(entitlements[indexE].value))
+                        ents_idn.push(entitlements[indexE].value)
+                }
         return {
             // Convert id to string because IDN doesn't work well with number types for the account ID
             identity: user.id ? user.id : '',
             uuid: user.id ? user.id : '',
             attributes: {
                 id: user.id ? user.id : '',
-                hostType: user.hostType ? user.hostType : '',
-                created: user.created ? user.created : '',
-                adapterVersion: user.adapterVersion ? user.adapterVersion : '',
-                agentVersion: user.agentVersion ? user.agentVersion : '',
-                authorisationState: user.authorisationState ? user.authorisationState : '',
-                authorised: user.authorised ? user.authorised : '',
-                lastConnected: user.lastConnected ? user.lastConnected : '',
-                deactivated: user.deactivated ? user.deactivated : false,
-                autoDeactivated: user.autoDeactivated ? user.autoDeactivated : false,
-                pendingDeactivation: user.pendingDeactivation ? user.pendingDeactivation : false,
-                deactivatedOn: user.deactivatedOn ? user.deactivatedOn : '',
-                group: user.groupId ? user.groupId : '',
-                groupName: user.groupName ? user.groupName : '',
-                policyId: user.policyId ? user.policyId : '',
-                policyName: user.policyName ? user.policyName : '',
-                policyRevision: user.policyRevision ? user.policyRevision : -1,
-                policyRevisionStatus: user.policyRevisionStatus ? user.policyRevisionStatus : '',
-                macAddress: user.macAddress ? user.macAddress : '',
-                osArchitecture: user.osArchitecture ? user.osArchitecture : '',
-                osCaption: user.osCaption ? user.osCaption : '',
-                osCodeSet: user.osCodeSet ? user.osCodeSet : '',
-                osComputerDescription: user.osComputerDescription ? user.osComputerDescription : '',
-                osCountryCode: user.osCountryCode ? user.osCountryCode : '',
-                osInstallDate: user.osInstallDate ? user.osInstallDate : '',
-                osManufacturer: user.osManufacturer ? user.osManufacturer : '',
-                osOrganization: user.osOrganization ? user.osOrganization : '',
-                osSerialNumber: user.osSerialNumber ? user.osSerialNumber : '',
-                osSystemDirectory: user.osSystemDirectory ? user.osSystemDirectory : '',
-                osSystemDrive: user.osSystemDrive ? user.osSystemDrive : '',
-                osVersion: user.osVersion ? user.osVersion : '',
-                osVersionString: user.osVersionString ? user.osVersionString : '',
-                processorCaption: user.processorCaption ? user.processorCaption : '',
-                processorDescription: user.processorDescription ? user.processorDescription : '',
-                processorManufacturer: user.processorManufacturer ? user.processorManufacturer : '',
-                processorName: user.processorName ? user.processorName : '',
-                systemDnsHostName: user.systemDnsHostName ? user.systemDnsHostName : '',
-                systemDomain: user.systemDomain ? user.systemDomain : '',
-                systemManufacturer: user.systemManufacturer ? user.systemManufacturer : '',
-                systemModel: user.systemModel ? user.systemModel : '',
-                systemName: user.systemName ? user.systemName : '',
-                systemPrimaryOwnerName: user.systemPrimaryOwnerName ? user.systemPrimaryOwnerName : '',
-                systemSystemType: user.systemSystemType ? user.systemSystemType : '',
-                systemWorkgroup: user.systemWorkgroup ? user.systemWorkgroup : ''
+                userName: user.userName ? user.userName : '',
+                timezone: user.timezone ? user.timezone : '',
+                locale: user.locale ? user.locale : '',
+                email: email,
+                active: user.active ? user.active : true,
+                roles: groups_idn,
+                entitlements: ents_idn
             }
         }
     }
-    
+
     /**
      * converts group object to IDN Entitlement List Output
      *
@@ -73,28 +57,92 @@ export class Util {
      * @returns {StdAccountCreateOutput} IDN Entitlement List Output
      */
     public groupToEntitlement(group: Group): StdEntitlementListOutput {
-        return {
-            identity: group.id,
-            uuid: group.id,
-            type: 'group',
-            attributes: {
-                id: group.id,
-                name: group.name,
-                description: group.description,
-                computerCount: group.computerCount,
-                activeComputers: group.activeComputers,
-                created: group.created,
-                policyRevisionId: group.policyRevisionId,
-                policyId: group.policyId,
-                policyRevisionStatus: group.policyRevisionStatus,
-                policyName: group.policyName,
-                revision: group.revision,
-                default: group.default,
-                locked: group.locked,
-                errorInfo: group.errorInfo
-             }
+//        const groupId = 'g:'+group.id.toString()
+        const groupId = group.name
+        let allowPermissions = []
+        if (group.allowPermissions) {
+            for(const allowPermission of group.allowPermissions){
+            console.log('resource = '+JSON.stringify(allowPermission))
+            allowPermissions.push(allowPermission['resource']+'::'+allowPermission['action'])
         }
     }
+        let denyPermissions = []
+        if (group.denyPermissions) {
+            for(const denyPermission of group.denyPermissions){
+            console.log('DENY resource = '+JSON.stringify(denyPermission))
+            denyPermissions.push(denyPermission['resource']+'::'+denyPermission['action'])
+        }
+    }
+        return {
+            identity: groupId,
+            uuid: groupId,
+            type: 'roles',
+            attributes: {
+                id: groupId,
+                name: group.name,
+                allowPermissions: allowPermissions,
+                denyPermissions: denyPermissions
+            }
+        }
+    }
+
+    /**
+     * converts container object to IDN Entitlement List Output
+     *
+     * @param {Container} container container object
+     * @returns {StdAccountCreateOutput} IDN Entitlement List Output
+     */
+    public containerToEntitlement(container: Container): StdEntitlementListOutput {
+        const containerId = 'c:'+container.id?.toString()
+        return {
+            identity: containerId,
+            uuid: containerId,
+            type: 'group',
+            attributes: {
+                id: containerId,
+                name: 'CONTAINER::'+container.name,
+                displayName: container.displayName,
+                description: container.description,
+                managedAccounts: container.privilegedData,
+                memberOf: container.memberOf
+            }
+        }
+    }
+
+    /**
+     * converts user object to IDN account output
+     *
+     * @param {User} user User object
+     * @returns {StdAccountCreateOutput} IDN account create object
+     */
+    public userToAccount_report(user: User,report: []): StdAccountCreateOutput {
+        var jsonPath = require('JSONPath');
+        // Formatting output for IdentityNow
+        console.log('###### userToAccount user = '+JSON.stringify(user))
+        const uid = user.id ? user.id : ''
+        const email = user.emails[0].value ? user.emails[0].value : ''
+        const roles = user.roles ? user.roles : ''
+let groups_idn = []
+        console.log('##### user id = '+uid)
+        console.log('##### # of roles = '+ roles.length+'  roles ='+JSON.stringify(roles))
+        for (let index = 0; index < roles.length; ++index) {
+            console.log('######## role = '+JSON.stringify(roles[index].value))
+                groups_idn.push(roles[index].value)
+        }
+return {
+    // Convert id to string because IDN doesn't work well with number types for the account ID
+    identity: user.id ? user.id : '',
+    uuid: user.id ? user.id : '',
+    attributes: {
+        id: user.id ? user.id : '',
+        userName: user.userName ? user.userName : '',
+        email: email,
+        timezone: user.timezone ? user.timezone : '',
+        locale: user.locale ? user.locale : '',
+        groups: groups_idn
+}
+}
+}
 
 
 }
