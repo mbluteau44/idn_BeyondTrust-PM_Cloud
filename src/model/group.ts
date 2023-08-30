@@ -1,19 +1,10 @@
+import { Container } from "./container"
 /**
- * Group for EPM Computers.
+ * Group is Discourse's representation of a group, omitting the properties we don't need.
  */
  export class Group {
-   id = ''
-   name = ''
-   description = ''
-   computerCount = -1
-   activeComputers = -1
-   created = ''
-   policyRevisionId = ''
-   policyId = ''
-   policyRevisionStatus = ''
-   policyName = ''
-   revision = -1
-   default = false
-   locked = false
-   errorInfo = ''
+    id = ''
+    name = ''
+    allowPermissions = [{"resource":'',"action":''}]
+    denyPermissions = [{"resource":'',"action":''}]
  }
