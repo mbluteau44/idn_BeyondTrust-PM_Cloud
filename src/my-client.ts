@@ -1,28 +1,6 @@
 import { ConnectorError, logger } from "@sailpoint/connector-sdk"
-import {epm_auth, epm_GET_computer_group, epm_GET_computers_details,epm_GET_computer,epm_GET_computer_groups,epm_change_account} from './epm-functions'
-
-const MOCK_DATA = new Map([
-    [
-        'john.doe',
-        {
-            id: '1',
-            username: 'john.doe',
-            firstName: 'john',
-            lastName: 'doe',
-            email: 'john.doe@example.com',
-        },
-    ],
-    [
-        'jane.doe',
-        {
-            id: '2',
-            username: 'jane.doe',
-            firstName: 'jane',
-            lastName: 'doe',
-            email: 'jane.doe@example.com',
-        },
-    ],
-])
+import {check_token_expiration,smart_error_handling,scim_auth, scim_GET_ServiceProviderConfig,scim_GET_Users,scim_GET_User,scim_POST_User,scim_PUT_User,scim_PATCH_User,scim_GET_Groups,scim_GET_Groups_Details,scim_GET_Containers,scim_DELETE_User,scim_PATCH_Group} from './scim-functions'
+import {pmc_get} from './pmc-functions'
 
 export class MyClient {
     private readonly instance?: string
@@ -32,133 +10,361 @@ export class MyClient {
 
     constructor(config: any) {
         // Fetch necessary properties from config.
-        // Following properties actually do not exist in the config -- it just serves as an example.
-        this.instance = config?.instance
-        this.authUrl = config?.authUrl
-        this.client_id = config?.client_id
-        this.client_secret = config?.client_secret
-        if (this.client_id == null) {
-            throw new ConnectorError('client_id and client_secret must be provided from config')
+        // Global Variables
+        // Remove trailing slash in URL if present.  Then store in Global Variables.
+        if(config?.instance.substr(config?.instance.length - 1 ) == '/'){
+            globalThis.__INSTANCE = config?.instance.substr(0,config?.instance.length - 1) + '/management-api/scim/v2'
+            globalThis.__REST_API = config?.instance.substr(0,config?.instance.length - 1) + '/management-api/v1'
+        }  else{
+            globalThis.__INSTANCE = config?.instance+'/management-api/scim/v2'
+            globalThis.__REST_API = config?.instance+'/management-api'
         }
+        // Remove trailing slash in Auth URL if present.  Then store in Global Variables.
+        if(config?.authUrl.substr(config?.authUrl.length - 1 ) == '/'){
+            globalThis.__AUTHURL = config?.authUrl.substr(0,config?.authUrl.length - 1)
+        }  else{
+            globalThis.__AUTHURL = config?.authUrl
+        }
+        // Store Client Credentials in Global Variables
+        globalThis.__CLIENT_ID = config?.client_id
+        globalThis.__CLIENT_SECRET = config?.client_secret
+
     }
 
     async getAllAccounts(): Promise<any[]> {
-        logger.info('getAllAccounts instance = '+this.instance)
-        let resAuth = await epm_auth(this.authUrl,this.client_id,this.client_secret)
 
-        let resAccounts = await epm_GET_computers_details(this.instance,"Bearer "+resAuth.data.access_token)
-        logger.info('emp GET accounts = '+JSON.stringify(resAccounts))
+        // Check expiration time for Bearer token in Global variable
+        let valid_token = await check_token_expiration()
+        if((valid_token == 'undefined') || (valid_token == 'expired')){
+            console.log('######### Expiration Time is undefined or in the past')
+            let resAuth = await scim_auth()
+            logger.info(`resAuth : ${JSON.stringify(resAuth.data)}`)
+                }
+        else if(valid_token == 'valid'){
+            console.log('### Expiration Time is in the future:  No need to Re-Authenticate')
+            }
 
-//        return Array.from(MOCK_DATA.values())
-        return(resAccounts)
-}
+            // Declare account
+            try{
+                let resAccounts = await scim_GET_Users()
+                //console.log('accounts = '+JSON.stringify(resAccounts))
+                return resAccounts
+            }  catch (err:any) {
+                console.log('##### Error name = '+err.name)
+                console.log('##### Error message = '+err.message)
+                if(err.message == 'Request failed with status code 401'){
+                    console.log('#### error status = 401')
+                    let resAuth2: any = await scim_auth()
+                    logger.info(`resAuth2 : ${JSON.stringify(resAuth2.data)}`)
+                    let resAccounts2 = await scim_GET_Users()
+                    return resAccounts2
+                }    else{
+                    console.log('about to throw ConnectorError')
+                    await smart_error_handling(err)
+                    return err.message
+                }
+
+            }  
+            }
 
     async getAccount(identity: string): Promise<any> {
         // In a real use case, this requires a HTTP call out to SaaS app to fetch an account,
         // which is why it's good practice for this to be async and return a promise.
-//        return MOCK_DATA.get(identity)
-logger.info('getAccount instance = '+this.instance)
-let resAuth = await epm_auth(this.authUrl,this.client_id,this.client_secret)
 
-let resAccount = await epm_GET_computer(this.instance,"Bearer "+resAuth.data.access_token, identity)
+        // Check expiration time for Bearer token in Global variable
+        let valid_token = await check_token_expiration()
+        if((valid_token == 'undefined') || (valid_token == 'expired')){
+            console.log('######### Expiration Time is undefined or in the past')
+            let resAuth = await scim_auth()
+                }
+        else if(valid_token == 'valid'){
+            console.log('### Expiration Time is in the future:  No need to Re-Authenticate')
+            }
 
-return(resAccount)
+            // Declare account
+            try{
+                let resAccount = await scim_GET_User(identity)
+                return resAccount
+        }  catch (err:any) {
+                console.log('##### Error name = '+err.name)
+                console.log('##### Error message = '+err.message)
+                if(err.message == 'Request failed with status code 401'){
+                    console.log('#### error status = 401')
+                    let resAuth2: any = await scim_auth()
+                    let resAccount2 = await scim_GET_User(identity)
+                    return resAccount2
+                }   else{
+                        console.log('about to throw ConnectorError')
+                        await smart_error_handling(err)
+                        return err.message
+                    }
+            }  
+
     }
 
-    async changeAccount(account: string, change: any): Promise<any> {
+    async createAccount(account: string): Promise<any> {
         // In a real use case, this requires a HTTP call out to SaaS app to fetch an account,
         // which is why it's good practice for this to be async and return a promise.
-        let resAuth = await epm_auth(this.authUrl,this.client_id,this.client_secret)
 
-//        changes.forEach((c: any) => {
-            epm_change_account(this.instance,"Bearer "+resAuth.data.access_token,account,change)
-            logger.info(`forEach change : ${JSON.stringify(change)}`)
-//        })
+        // Check expiration time for Bearer token in Global variable
+        let valid_token = await check_token_expiration()
+        if((valid_token == 'undefined') || (valid_token == 'expired')){
+            console.log('######### Expiration Time is undefined or in the past')
+            let resAuth = await scim_auth()
+            logger.info(`resAuth : ${JSON.stringify(resAuth.data)}`)
+                }
+        else if(valid_token == 'valid'){
+            console.log('### Expiration Time is in the future:  No need to Re-Authenticate')
+            }
 
-let resAccount = await epm_GET_computer(this.instance,"Bearer "+resAuth.data.access_token, account)
+            // Declare account
+            try{
+                let resAccount = await scim_POST_User(account)
+                return resAccount
+            }  catch (err:any) {
+                console.log('##### Error name = '+err.name)
+                console.log('##### Error message = '+err.message)
+                if(err.message == 'Request failed with status code 401'){
+                    console.log('#### error status = 401')
+                    let resAuth2: any = await scim_auth()
+                    logger.info(`resAuth2 : ${JSON.stringify(resAuth2.data)}`)
+                    let resAccounts2 = await scim_POST_User(account)
+                    return resAccounts2
+                }   else{
+                    console.log('about to throw ConnectorError')
+                    await smart_error_handling(err)
+                    return err.message
+                }
 
-return(resAccount)    
-}
+            } 
+    }
+
+    async changeAccountStatus(identity: string, status: boolean): Promise<any> {
+        // In a real use case, this requires a HTTP call out to SaaS app to fetch an account,
+        // which is why it's good practice for this to be async and return a promise.
+
+        // Check expiration time for Bearer token in Global variable
+        let valid_token = await check_token_expiration()
+        if((valid_token == 'undefined') || (valid_token == 'expired')){
+            console.log('######### Expiration Time is undefined or in the past')
+            let resAuth = await scim_auth()
+            logger.info(`resAuth : ${JSON.stringify(resAuth.data)}`)
+                }
+        else if(valid_token == 'valid'){
+            console.log('### Expiration Time is in the future:  No need to Re-Authenticate')
+            }
+
+            // Change account
+            try{
+                const change = 
+                      {
+                        "op": "replace",
+                        "attribute": "active",
+                        "value": status
+                      }
+
+                let changeAccount = await scim_PATCH_User(identity,change)
+                return changeAccount
+            }  catch (err:any) {
+                console.log('##### Error name = '+err.name)
+                console.log('##### Error message = '+err.message)
+                if(err.message == 'Request failed with status code 401'){
+                    console.log('#### error status = 401')
+                    let resAuth2: any = await scim_auth()
+                    logger.info(`resAuth2 : ${JSON.stringify(resAuth2.data)}`)
+                    const change = 
+                    {
+                      "op": "replace",
+                      "attribute": "active",
+                      "value": status
+                    }
+                  let changeAccount2 = await scim_PATCH_User(identity,change)
+                    return changeAccount2
+                }     else{
+                        console.log('about to throw ConnectorError')
+                        await smart_error_handling(err)
+                        return err.message
+                    }
+
+            }  
+    }
+
+    async updateAccount(account: string, change: any): Promise<any> {
+        // In a real use case, this requires a HTTP call out to SaaS app to fetch an account,
+        // which is why it's good practice for this to be async and return a promise.
+
+        // Check expiration time for Bearer token in Global variable
+        let valid_token = await check_token_expiration()
+        if((valid_token == 'undefined') || (valid_token == 'expired')){
+            console.log('######### Expiration Time is undefined or in the past')
+            let resAuth = await scim_auth()
+            logger.info(`resAuth : ${JSON.stringify(resAuth.data)}`)
+                }
+        else if(valid_token == 'valid'){
+            console.log('### Expiration Time is in the future:  No need to Re-Authenticate')
+            }
+
+            // Change account
+            let Change = change
+        try{
+                let changeAccount = await scim_PATCH_User(account,Change)
+                return changeAccount
+            }  catch (err:any) {
+                console.log('##### Error name = '+err.name)
+                console.log('##### Error message = '+err.message)
+                if(err.message == 'Request failed with status code 401'){
+                    console.log('#### error status = 401')
+                    let resAuth2: any = await scim_auth()
+                    logger.info(`resAuth2 : ${JSON.stringify(resAuth2.data)}`)
+                        let changeAccount2 = await scim_PATCH_User(account,Change)
+                    return changeAccount2
+                }    else{
+                        console.log('about to throw ConnectorError')
+                        await smart_error_handling(err)
+                        return err.message
+                    }
+
+                } 
+    }
+
+    async deleteAccount(identity: string): Promise<any> {
+        // In a real use case, this requires a HTTP call out to SaaS app to fetch an account,
+        // which is why it's good practice for this to be async and return a promise.
+
+        // Check expiration time for Bearer token in Global variable
+        let valid_token = await check_token_expiration()
+        if((valid_token == 'undefined') || (valid_token == 'expired')){
+            console.log('######### Expiration Time is undefined or in the past')
+            let resAuth = await scim_auth()
+            logger.info(`resAuth : ${JSON.stringify(resAuth.data)}`)
+                }
+        else if(valid_token == 'valid'){
+            console.log('### Expiration Time is in the future:  No need to Re-Authenticate')
+            }
+
+            // Delete account
+            try{
+                let changeAccount = await scim_DELETE_User(identity)
+                return changeAccount
+            }  catch (err:any) {
+                console.log('##### Error name = '+err.name)
+                console.log('##### Error message = '+err.message)
+                if(err.message == 'Request failed with status code 401'){
+                    console.log('#### error status = 401')
+                    let resAuth2: any = await scim_auth()
+                    logger.info(`resAuth2 : ${JSON.stringify(resAuth2.data)}`)
+                    let changeAccount2 = await scim_DELETE_User(identity)
+                    return changeAccount2
+                }     else{
+                        console.log('about to throw ConnectorError')
+                        await smart_error_handling(err)
+                        return err.message
+                    }
+
+            }  
+    }
 
     async testConnection(): Promise<any> {
-        logger.info('testConnection instance = '+this.instance)
-        let resAuth = await epm_auth(this.authUrl,this.client_id,this.client_secret)
+
+        // Check expiration time for Bearer token in Global variable
+        let valid_token = await check_token_expiration()
+        if((valid_token == 'undefined') || (valid_token == 'expired')){
+            console.log('######### Expiration Time is undefined or in the past')
+            let resAuth = await scim_auth()
+            logger.info(`resAuth : ${JSON.stringify(resAuth.data)}`)
+                }
+        else if(valid_token == 'valid'){
+            console.log('### Expiration Time is in the future:  No need to Re-Authenticate')
+            }
+
+        // TEST = GET Security Providers
+        try{
+        let SPs = await scim_GET_ServiceProviderConfig()
+        logger.info(`Service Providers : ${JSON.stringify(SPs.data)}`)
         return {}
-//          return resAuth.data
-}
-
-    async getAllGroups(): Promise<any[]> {
-        logger.info('getAllGroups instance = '+this.instance)
-        let resAuth = await epm_auth(this.authUrl,this.client_id,this.client_secret)
-
-        let resGroups = await epm_GET_computer_groups(this.instance,"Bearer "+resAuth.data.access_token)
-
-        logger.info('getAllGroups res = '+JSON.stringify(resGroups.data.data))
-        return(resGroups.data.data)
-}
-
-async getAGroup(identity: string): Promise<any[]> {
-    logger.info('getAGroup instance = '+this.instance)
-    let resAuth = await epm_auth(this.authUrl,this.client_id,this.client_secret)
-
-    let resGroup = await epm_GET_computer_group(this.instance,"Bearer "+resAuth.data.access_token, identity)
-
-    logger.info('getAGroup res = '+JSON.stringify(resGroup))
-    return(resGroup)
-}
-
-async getAllEntitlements(): Promise<any[]> {
-    let resAuth = await epm_auth(this.authUrl,this.client_id,this.client_secret)
-
-    let resGroups = await epm_GET_computer_groups(this.instance,"Bearer "+resAuth.data.access_token)
-
-    console.log('We are in getAllEntitlements my-client')
-    console.log('resGroups from my-client = '+JSON.stringify(resGroups.data.data))
-    return resGroups.data.data
-
-}
-
-async getEntitlement(identity: string): Promise<any[]> {
-    let resAuth = await epm_auth(this.authUrl,this.client_id,this.client_secret)
-
-    let resGP = await epm_GET_computer_group(this.instance,"Bearer "+resAuth.data.access_token,identity)
-//    logger.info('Policy XML = '+JSON.stringify(resGP.data))
-    var parseString = require('xml2js').parseString
-    parseString(resGP.data, (parseError: any, xml2json:any) => {
-    if (parseError) {
-     throw parseError;
+    } catch (err:any) {
+        console.log('##### Error name = '+err.name)
+        console.log('##### Error message = '+err.message)
+        if(err.message == 'Request failed with status code 401'){
+            console.log('#### error status = 401')
+            let resAuth2: any = await scim_auth()
+            logger.info(`resAuth2 : ${JSON.stringify(resAuth2.data)}`)
+            let SPs2 = await scim_GET_ServiceProviderConfig()
+            return {}
+        }   else{
+            console.log('We are about to throw ConnectorError in Test Connection')
+            await smart_error_handling(err)
+            return err.message
+        }
     }
-	  console.log('xml2json _Version : '+xml2json.Configuration.$.Version)
-	  console.log('Policy length : '+xml2json.Configuration.Policies[0].Policy.length)
-      	  const policyCount = xml2json.Configuration.Policies[0].Policy.length
-    for (let policyIndex = 1 - 1; policyIndex < policyCount && (policyIndex + 1 - 1) < policyCount; ++policyIndex) {
-	  console.log('####### Policy Index : '+policyIndex)
-	  console.log('Policy Name : '+xml2json.Configuration.Policies[0].Policy[policyIndex].$.Name)
-	  console.log('Policy : '+JSON.stringify(xml2json.Configuration.Policies[0].Policy[policyIndex]))
-	  console.log('Policy Description : '+xml2json.Configuration.Policies[0].Policy[policyIndex].$.Description)
-
-      const AccountsFilterLength = xml2json.Configuration.Policies[0].Policy[policyIndex].Filters[0].AccountsFilter.length
-      console.log('AccountsFilter length = '+AccountsFilterLength)
-
-      const AccountsFilter = xml2json.Configuration.Policies[0].Policy[policyIndex].Filters[0].AccountsFilter[0]
-	  console.log('Policy AccountsFilter : '+JSON.stringify(AccountsFilter))
-      const Accounts = AccountsFilter.Accounts
-	  console.log('Policy Accounts InverseFilter: '+JSON.stringify(Accounts[0].Account[0].$.Name))
-      if(AccountsFilterLength == 2){
-        console.log('Policy Accounts InverseFilter: '+JSON.stringify(Accounts[0].Account[0].$.Name))
-        const AccountsFilter2 = xml2json.Configuration.Policies[0].Policy[policyIndex].Filters[0].AccountsFilter[1]
-        const Accounts2 = AccountsFilter2.Accounts
-        console.log('Policy Accounts : '+JSON.stringify(Accounts2[0].Account[0].$.Name))
-
-      }
-//      const AccountName = Accounts[0].$.Name
-//	  console.log('Policy Account Name : '+JSON.stringify(AccountName))
-		const policyName = xml2json.Configuration.Policies[0].Policy[policyIndex].$.Name
-		const description = xml2json.Configuration.Policies[0].Policy[policyIndex].$.Description
     }
-    });    
-    return resGP
 
-}
+    async getAllEntitlements(): Promise<any[]> {
+        // Check expiration time for Bearer token in Global variable
+        let valid_token = await check_token_expiration()
+        if((valid_token == 'undefined') || (valid_token == 'expired')){
+            console.log('######### Expiration Time is undefined or in the past')
+            let resAuth = await scim_auth()
+            logger.info(`resAuth : ${JSON.stringify(resAuth.data)}`)
+                }
+        else if(valid_token == 'valid'){
+            console.log('### Expiration Time is in the future:  No need to Re-Authenticate')
+            }
+
+            // GET entitlements
+            try{
+//                let permissions = await this.getPermissions()
+                let resG = await pmc_get('/v2/Roles')
+                return resG
+            }  catch (err:any) {
+                console.log('##### Error name = '+err.name)
+                console.log('##### Error message = '+err.message)
+                if(err.message == 'Request failed with status code 401'){
+                    console.log('#### error status = 401')
+                    let resAuth2: any = await scim_auth()
+                    let resG2 = await pmc_get('/v2/Roles')
+                    return resG2
+                    }    else{
+                    console.log('about to throw ConnectorError')
+                    await smart_error_handling(err)
+                    return err.message
+                }
+            }
+    }
+
+    async getEntitlement(identity: string): Promise<any[]> {
+        // Check expiration time for Bearer token in Global variable
+        let valid_token = await check_token_expiration()
+        if((valid_token == 'undefined') || (valid_token == 'expired')){
+            console.log('######### Expiration Time is undefined or in the past')
+            let resAuth = await scim_auth()
+            logger.info(`resAuth : ${JSON.stringify(resAuth.data)}`)
+                }
+        else if(valid_token == 'valid'){
+            console.log('### Expiration Time is in the future:  No need to Re-Authenticate')
+            }
+
+            // GET entitlement
+            try{
+                let resGP = await pmc_get('/v1/Role/'+identity)
+                return resGP.data
+            }  catch (err:any) {
+                console.log('##### Error name = '+err.name)
+                console.log('##### Error message = '+err.message)
+                if(err.message == 'Request failed with status code 401'){
+                    console.log('#### error status = 401')
+                    let resAuth2: any = await scim_auth()
+                    logger.info(`resAuth2 : ${JSON.stringify(resAuth2.data)}`)
+                    let resGP2 = await pmc_get('/v1/Role')
+                    return resGP2.data
+                    }     else{
+                    console.log('about to throw ConnectorError')
+                    await smart_error_handling(err)
+                    return err.message
+                }
+
+            }  
+
+    }
 
 }
