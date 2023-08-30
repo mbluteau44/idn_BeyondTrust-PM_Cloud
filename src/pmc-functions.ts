@@ -26,7 +26,4 @@ let res_get = await axios(config)
   
       return res_get.data
   
-//    } catch (err: any) {
-//      throw new ConnectorError('pmc_get  '+err.name+'  ::  '+err.message)    }
-  
   }
