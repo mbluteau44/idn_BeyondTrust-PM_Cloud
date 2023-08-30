@@ -1,6 +1,4 @@
 // BeyondTrust PM Cloud functions
-// Remote Support and Privileged Remote Access
-// The only difference between RS and PRA:  RS has extra attribute private_display_name
 import { ConnectorError, logger } from '@sailpoint/connector-sdk'
 import {smart_error_handling,scim_GET_User} from './scim-functions'
 
