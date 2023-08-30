@@ -109,40 +109,4 @@ export class Util {
         }
     }
 
-    /**
-     * converts user object to IDN account output
-     *
-     * @param {User} user User object
-     * @returns {StdAccountCreateOutput} IDN account create object
-     */
-    public userToAccount_report(user: User,report: []): StdAccountCreateOutput {
-        var jsonPath = require('JSONPath');
-        // Formatting output for IdentityNow
-        console.log('###### userToAccount user = '+JSON.stringify(user))
-        const uid = user.id ? user.id : ''
-        const email = user.emails[0].value ? user.emails[0].value : ''
-        const roles = user.roles ? user.roles : ''
-let groups_idn = []
-        console.log('##### user id = '+uid)
-        console.log('##### # of roles = '+ roles.length+'  roles ='+JSON.stringify(roles))
-        for (let index = 0; index < roles.length; ++index) {
-            console.log('######## role = '+JSON.stringify(roles[index].value))
-                groups_idn.push(roles[index].value)
-        }
-return {
-    // Convert id to string because IDN doesn't work well with number types for the account ID
-    identity: user.id ? user.id : '',
-    uuid: user.id ? user.id : '',
-    attributes: {
-        id: user.id ? user.id : '',
-        userName: user.userName ? user.userName : '',
-        email: email,
-        timezone: user.timezone ? user.timezone : '',
-        locale: user.locale ? user.locale : '',
-        groups: groups_idn
-}
-}
-}
-
-
 }
