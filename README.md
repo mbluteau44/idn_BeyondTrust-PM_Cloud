@@ -160,7 +160,57 @@ We also need to catch Unauthorized 401 error, which happens when the Bearer Toke
   
   <img src="images/pmc-remove-trailing-slash.png" alt="Code to remove trailing slash">
 
+<h2>Testing - PostMan Collection</h2>
   
+  <h3>Configure the Collection</h3>
+  
+  Import the Collection in PostMan, then change the Variables at the root of the Collection to match your instance and client credentials:
+
+   <img src="images/pmc-postman-collection.png" alt="PostMan Collection - Configuration">
+
+ <h3>Test Connection</h3>
+
+   <img src="images/pmc-postman-testconnection.png" alt="PostMan - Test Connection">
+
+ <h3>Account List</h3>
+
+   <img src="images/pmc-postman-accountlist.png" alt="PostMan - Account List">
+
+ <h3>Account Read</h3>
+
+   <img src="images/pmc-postman-accountread.png" alt="PostMan - Account Read">
+
+ <h3>Account Create</h3>
+
+   <img src="images/pmc-postman-testconnection.png" alt="PostMan - Account Create">
+
+ <h3>Account Update</h3>
+
+   <img src="images/pmc-postman-accountupdate.png" alt="PostMan - Account Update">
+
+ <h3>Account Delete</h3>
+
+   Account Delete is not supported. PM Cloud keeps Accounts for auditing. Use Account Disable.
+
+ <h3>Entitlement List</h3>
+
+   <img src="images/pmc-postman-entitlementlist.png" alt="PostMan - Entitlement List">
+
+ <h3>Entitlement Read</h3>
+
+   <img src="images/pmc-postman-entitlementread.png" alt="PostMan - Entitlement Read">
+
+ <h3>Account Disable</h3>
+
+   <img src="images/pmc-postman-accountdisable.png" alt="PostMan - Account Disable">
+
+ <h3>Account Enable</h3>
+
+   <img src="images/pmc-postman-accountenable.png" alt="PostMan - Account Enable">
+
+ <h3>Account Unlock</h3>
+
+  Not supported.  Accounts need to be unlocked directly with Identity Provider, e.g. Azure AD, Okta, Ping.
+
 </body>
 </html>
-
