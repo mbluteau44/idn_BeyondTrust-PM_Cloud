@@ -346,8 +346,8 @@ export class MyClient {
 
             // GET entitlement
             try{
-                let resGP = await pmc_get('/v1/Role/'+identity)
-                return resGP.data
+                let resGP = await pmc_get('/v2/Roles/'+identity)
+                return resGP
             }  catch (err:any) {
                 console.log('##### Error name = '+err.name)
                 console.log('##### Error message = '+err.message)
@@ -355,8 +355,8 @@ export class MyClient {
                     console.log('#### error status = 401')
                     let resAuth2: any = await scim_auth()
                     logger.info(`resAuth2 : ${JSON.stringify(resAuth2.data)}`)
-                    let resGP2 = await pmc_get('/v1/Role')
-                    return resGP2.data
+                    let resGP2 = await pmc_get('/v2/Roles/'+identity)
+                    return resGP2
                     }     else{
                     console.log('about to throw ConnectorError')
                     await smart_error_handling(err)
