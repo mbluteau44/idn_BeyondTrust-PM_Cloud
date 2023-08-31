@@ -1,0 +1,331 @@
+{
+	"info": {
+		"_postman_id": "6787648b-35a1-4e64-aa04-e0f1c47067d3",
+		"name": "SaaS Connectivity - BeyondTrust PM Cloud",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "4514622"
+	},
+	"item": [
+		{
+			"name": "Test local stdTestConnection",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"type\": \"std:test-connection\",\r\n    \"input\": {},\r\n    \"config\": {\r\n        \"instance\": \"{{instance}}\",\r\n        \"authUrl\": \"{{authUrl}}\",\r\n        \"client_id\": \"{{client_id}}\",\r\n        \"client_secret\": \"{{client_secret}}\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:3000",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "3000"
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Test local stdAccountList",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"type\": \"std:account:list\",\r\n    \"input\": {},\r\n    \"config\": {\r\n        \"instance\": \"{{instance}}\",\r\n        \"authUrl\": \"{{authUrl}}\",\r\n        \"client_id\": \"{{client_id}}\",\r\n        \"client_secret\": \"{{client_secret}}\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:3000",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "3000"
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Test local stdAccountRead",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"type\": \"std:account:read\",\r\n    \"input\": {\r\n        \"key\": {\"simple\": { \"id\": \"e29900f4-327f-4a7b-9818-0a2fe0612802\"}},\r\n        \"identity\": \"e29900f4-327f-4a7b-9818-0a2fe0612802\"\r\n    },\r\n    \"config\": {\r\n        \"instance\": \"{{instance}}\",\r\n        \"authUrl\": \"{{authUrl}}\",\r\n        \"client_id\": \"{{client_id}}\",\r\n        \"client_secret\": \"{{client_secret}}\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:3000",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "3000"
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Test local stdAccountCreate",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"type\": \"std:account:create\",\r\n    \"input\": {\r\n        \"attributes\": {\r\n            \"username\": \"martin.smith@btlab.btu.cloud\",\r\n            \"email\": \"martin.smith@btlab.btu.cloud\",\r\n            \"active\": true,\r\n            \"timezone\": \"America/Chicago\",\r\n            \"locale\": \"en-US\"\r\n        }\r\n        },\r\n    \"config\": {\r\n        \"instance\": \"{{instance}}\",\r\n        \"authUrl\": \"{{authUrl}}\",\r\n        \"client_id\": \"{{client_id}}\",\r\n        \"client_secret\": \"{{client_secret}}\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:3000",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "3000"
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Test local stdAccountUpdate",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"type\": \"std:account:update\",\r\n    \"input\": {\r\n        \"key\": {\"simple\": { \"id\": \"3048ab2c-e657-4ff3-9d97-1df9eef6f904\"}},\r\n        \"identity\": \"3048ab2c-e657-4ff3-9d97-1df9eef6f904\",\r\n        \"changes\": [\r\n            {\r\n                \"op\": \"Add\",\r\n                \"attribute\": \"roles\",\r\n                \"value\": \"Group Viewer\"\r\n            }\r\n        ]\r\n    },\r\n    \"config\": {\r\n        \"instance\": \"{{instance}}\",\r\n        \"authUrl\": \"{{authUrl}}\",\r\n        \"client_id\": \"{{client_id}}\",\r\n        \"client_secret\": \"{{client_secret}}\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:3000",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "3000"
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Test local stdAccountDelete - NOT SUPPORTED",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"type\": \"std:account:delete\",\r\n    \"input\": {\r\n        \"key\": {\"simple\": { \"id\": \"39\"}},\r\n        \"identity\": \"39\"\r\n    },\r\n    \"config\": {\r\n        \"instance\": \"{{instance}}\",\r\n        \"authUrl\": \"{{authUrl}}\",\r\n        \"client_id\": \"{{client_id}}\",\r\n        \"client_secret\": \"{{client_secret}}\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:3000",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "3000"
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Test local stdEntitlementList",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"type\": \"std:entitlement:list\",\r\n    \"input\": {\r\n        \"type\": \"group\"\r\n    },\r\n    \"config\": {\r\n        \"instance\": \"{{instance}}\",\r\n        \"authUrl\": \"{{authUrl}}\",\r\n        \"client_id\": \"{{client_id}}\",\r\n        \"client_secret\": \"{{client_secret}}\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:3000",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "3000"
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Test local stdEntitlementRead",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"type\": \"std:entitlement:read\",\r\n    \"input\": {\r\n        \"key\": {\"simple\": { \"id\": \"b498c854-2e51-466b-9924-01dc8a422330\"}},\r\n        \"identity\": \"b498c854-2e51-466b-9924-01dc8a422330\",\r\n        \"type\": \"group\"\r\n    },\r\n    \"config\": {\r\n        \"instance\": \"{{instance}}\",\r\n        \"authUrl\": \"{{authUrl}}\",\r\n        \"client_id\": \"{{client_id}}\",\r\n        \"client_secret\": \"{{client_secret}}\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:3000",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "3000"
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Test local stdAccountDisable",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"type\": \"std:account:disable\",\r\n    \"input\": {\r\n        \"key\": {\"simple\": { \"id\": \"3048ab2c-e657-4ff3-9d97-1df9eef6f904\"}},\r\n        \"identity\": \"3048ab2c-e657-4ff3-9d97-1df9eef6f904\"\r\n    },\r\n    \"config\": {\r\n        \"instance\": \"{{instance}}\",\r\n        \"authUrl\": \"{{authUrl}}\",\r\n        \"client_id\": \"{{client_id}}\",\r\n        \"client_secret\": \"{{client_secret}}\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:3000",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "3000"
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Test local stdAccountEnable",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"type\": \"std:account:enable\",\r\n    \"input\": {\r\n        \"key\": {\"simple\": { \"id\": \"3048ab2c-e657-4ff3-9d97-1df9eef6f904\"}},\r\n        \"identity\": \"3048ab2c-e657-4ff3-9d97-1df9eef6f904\"\r\n    },\r\n    \"config\": {\r\n        \"instance\": \"{{instance}}\",\r\n        \"authUrl\": \"{{authUrl}}\",\r\n        \"client_id\": \"{{client_id}}\",\r\n        \"client_secret\": \"{{client_secret}}\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:3000",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "3000"
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Test local stdAccountUnlock - NOT SUPPORTED",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"type\": \"std:account:unlock\",\r\n    \"input\": {\r\n        \"key\": {\"simple\": { \"id\": \"3048ab2c-e657-4ff3-9d97-1df9eef6f904\"}},\r\n        \"identity\": \"3048ab2c-e657-4ff3-9d97-1df9eef6f904\"\r\n    },\r\n    \"config\": {\r\n        \"instance\": \"{{instance}}\",\r\n        \"authUrl\": \"{{authUrl}}\",\r\n        \"client_id\": \"{{client_id}}\",\r\n        \"client_secret\": \"{{client_secret}}\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:3000",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "3000"
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "host",
+			"value": "my-host"
+		},
+		{
+			"key": "instance",
+			"value": "https://pmc01-services.beyondtrustcloud.com",
+			"type": "string"
+		},
+		{
+			"key": "authUrl",
+			"value": "https://pmc01-services.beyondtrustcloud.com/oauth/connect/token",
+			"type": "string"
+		},
+		{
+			"key": "client_id",
+			"value": "8d1ba58f31741234b04b3ec8eed8e741",
+			"type": "string"
+		},
+		{
+			"key": "client_secret",
+			"value": "BYfQMiummwl9eSw4qBdwfCNANA167qyHXFZkzyi6Iow=",
+			"type": "string"
+		}
+	]
+}
