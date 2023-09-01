@@ -14,7 +14,7 @@ export class MyClient {
         // Remove trailing slash in URL if present.  Then store in Global Variables.
         if(config?.instance.substr(config?.instance.length - 1 ) == '/'){
             globalThis.__INSTANCE = config?.instance.substr(0,config?.instance.length - 1) + '/management-api/scim/v2'
-            globalThis.__REST_API = config?.instance.substr(0,config?.instance.length - 1) + '/management-api/v1'
+            globalThis.__REST_API = config?.instance.substr(0,config?.instance.length - 1) + '/management-api'
         }  else{
             globalThis.__INSTANCE = config?.instance+'/management-api/scim/v2'
             globalThis.__REST_API = config?.instance+'/management-api'
