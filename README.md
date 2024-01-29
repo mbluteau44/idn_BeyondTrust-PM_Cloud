@@ -28,9 +28,6 @@
   API service account permissions: Full Access for SCIM and Read Only for Management.
   The Management or REST API is used to aggregate Roles.  A /Roles SCIM endpoint is planned for a future release of PM Cloud.
   
-   <img src="images/sra-api-account-permissions.png" alt="SRA API User configuration">
-
-  
   Connector Configuration in IdentityNow.
   
    <img src="images/pmc-source-config.png" alt="PM Cloud Source Configuration">
@@ -43,7 +40,7 @@
 
    When looking at an Account, you should be able to click the Roles at the bottom and view Role Permissions.
 
-   <img src="images/pmc-accounts-entitlement.png" alt="PM Cloud Account in IdentityNow">
+   <img src="images/pmc-accounts-roles.png" alt="PM Cloud Account in IdentityNow">
 
 
   PM Cloud Entitlements in IdentityNow.
@@ -56,9 +53,9 @@
   
   Note that PM Cloud userName and email are pointing to the same value in PM Cloud.  The domain portion of the email address must be included in Domain Settings.
 
-    <img src="images/pmc-domain-settings.png" alt="Domain Settings">
+   <img src="images/pmc-domain-settings.png" alt="Domain Settings">
 
-    Authentication for Users happens via the authentication Domain, e.g. Azure AD, Okta, Ping Identity.
+   Note: Authentication for Users happens via the authentication Domain, e.g. Azure AD, Okta, Ping Identity.
 
 <h2>Code structure overview</h2>
   
@@ -110,9 +107,6 @@ We also need to catch Unauthorized 401 error, which happens when the Bearer Toke
   
   <img src="images/pmc-scim.png" alt="scim-functions.ts">
   
-  And this is the function that provides a User with details:
-  
-  <img src="images/function-userDetails.png" alt="sra-functions.ts">
   
   <h2>Using the PM Cloud SaaS Connector</h2>
 
@@ -129,7 +123,7 @@ We also need to catch Unauthorized 401 error, which happens when the Bearer Toke
   
   With Smart Error Handling function, located in scim-functions.ts, we can present an informative error message to the user:
 
-   <img src="images/pmc-HostNotFound.png" alt="Host Not Found">
+   <img src="images/pmc-hostNotFound.png" alt="Host Not Found">
 
   <h3>Invalid credentials in Configuration:  Test Connection.</h3>
      
