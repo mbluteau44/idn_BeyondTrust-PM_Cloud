@@ -260,11 +260,11 @@ export async function scim_POST_User(identity:any) {
                 "value": identity.email
             }
         ],
+        "roles": identity.roles,
         "active": identity.active,
         "password": identity.password,
         }
 
-        console.log('POST /User data = '+JSON.stringify(data))
     // set the headers
     const config = {
         method: 'post',
@@ -891,4 +891,3 @@ export async function scim_GET_PrivilegedData(id:any) {
 
       return res
     }
-
