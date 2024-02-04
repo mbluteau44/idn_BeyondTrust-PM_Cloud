@@ -188,16 +188,17 @@ export async function scim_GET_Users() {
     const numberOfUsers = res.data.totalResults
     const itemsPerPage = res.data.itemsPerPage
     const startIndex = res.data.startIndex
-    const lastPage = numberOfUsers / 25
+    const lastPage = Math.trunc(numberOfUsers / itemsPerPage) + 1
 
     console.log('Total # of Users = '+numberOfUsers+'  itemsPerPage = '+itemsPerPage+' startIndex = '+startIndex+' lastPage = '+lastPage)
     if(lastPage > 1){
         for (let page = 2; page < lastPage + 1; ++page) {
-            console.log('PAGINATION: Last Page = '+lastPage+'   We are working on Page # '+page)
+            const currentIndex = ((page - 1) * itemsPerPage) + 1
+            console.log('PAGINATION: Last Page = '+lastPage+'   We are working on Page # '+page+'  currentIndex = '+currentIndex)
             const configGP2 = {
                 method: 'get',
                 rejectUnauthorized: false,
-                url: globalThis.__INSTANCE + '/Users'+'?startIndex='+page+'&itemsPerPage=25',
+                url: globalThis.__INSTANCE + '/Users'+'?startIndex='+currentIndex+'&itemsPerPage='+itemsPerPage,
                 headers: {
                     'Accept': 'application/json',
                     'Authorization': 'Bearer '+globalThis.__ACCESS_TOKEN
